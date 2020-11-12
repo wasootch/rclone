@@ -294,19 +294,24 @@ func (f *File) activeWriters() int {
 // if NoModTime is set then it returns the mod time of the directory
 func (f *File) ModTime() (modTime time.Time) {
 	f.mu.RLock()
-	d, o, pendingModTime := f.d, f.o, f.pendingModTime
-	f.mu.RUnlock()
+	defer f.mu.RUnlock()
 
-	if d.vfs.Opt.NoModTime {
-		return d.ModTime()
+	if f.d.vfs.Opt.NoModTime {
+		return f.d.ModTime()
 	}
-	if !pendingModTime.IsZero() {
-		return pendingModTime
+	if !f.pendingModTime.IsZero() {
+		return f.pendingModTime
 	}
-	if o == nil {
+	// Read the modtime from a dirty item if it exists
+	if f.d.vfs.Opt.CacheMode >= vfscommon.CacheModeMinimal {
+		if item := f.d.vfs.cache.DirtyItem(f._path()); item != nil {
+			return item.GetModTime()
+		}
+	}
+	if f.o == nil {
 		return time.Now()
 	}
-	return o.ModTime(context.TODO())
+	return f.o.ModTime(context.TODO())
 }
 
 // nonNegative returns 0 if i is -ve, i otherwise

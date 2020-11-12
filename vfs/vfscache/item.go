@@ -1160,6 +1160,13 @@ func (item *Item) _updateFingerprint() {
 	}
 }
 
+// GetModTime gets the current modtime of the item
+func (item *Item) GetModTime() time.Time {
+	item.mu.Lock()
+	defer item.mu.Unlock()
+	return item.info.ModTime
+}
+
 // setModTime of the cache file
 //
 // call with lock held
