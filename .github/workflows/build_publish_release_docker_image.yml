@@ -1,27 +1,28 @@
 name: Docker release build
 
 on:
-  release:
-    types: [published]
+    push:
+      branches:
+        - test
 
 jobs:
     build:
         runs-on: ubuntu-latest
         name: Build image job
         steps:
-            - name: Checkout master
+            - name: Checkout test
               uses: actions/checkout@v2
               with:
                 fetch-depth: 0
             - name: Get actual patch version
               id: actual_patch_version
-              run: echo ::set-output name=ACTUAL_PATCH_VERSION::$(echo $GITHUB_REF | cut -d / -f 3 | sed 's/v//g')
+              run: echo ::set-output name=ACTUAL_PATCH_VERSION::1.53.3
             - name: Get actual minor version
               id: actual_minor_version
-              run: echo ::set-output name=ACTUAL_MINOR_VERSION::$(echo $GITHUB_REF | cut -d / -f 3 | sed 's/v//g' | cut -d "." -f 1,2)
+              run: echo ::set-output name=ACTUAL_MINOR_VERSION::1.53
             - name: Get actual major version
               id: actual_major_version
-              run: echo ::set-output name=ACTUAL_MAJOR_VERSION::$(echo $GITHUB_REF | cut -d / -f 3 | sed 's/v//g' | cut -d "." -f 1)
+              run: echo ::set-output name=ACTUAL_MAJOR_VERSION::1
             - name: Build and publish image
               uses: ilteoood/docker_buildx@cdfa422f87c26584dc0fa16bd52a44fb6bfa8ff6
               with:
