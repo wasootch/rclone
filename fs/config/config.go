@@ -30,6 +30,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rclone/rclone/fs"
 	"github.com/rclone/rclone/fs/accounting"
+	"github.com/rclone/rclone/fs/cache"
 	"github.com/rclone/rclone/fs/config/configmap"
 	"github.com/rclone/rclone/fs/config/configstruct"
 	"github.com/rclone/rclone/fs/config/obscure"
@@ -1084,6 +1085,7 @@ func UpdateRemote(ctx context.Context, name string, keyValues rc.Params, doObscu
 	}
 	RemoteConfig(ctx, name)
 	SaveConfig()
+	cache.ClearConfig(name) // remove any remotes based on this config from the cache
 	return nil
 }
 
