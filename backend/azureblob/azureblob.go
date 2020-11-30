@@ -1439,6 +1439,13 @@ func (o *Object) uploadMultipart(ctx context.Context, in io.Reader, size int64, 
 //
 // The new object may have been created if an error is returned
 func (o *Object) Update(ctx context.Context, in io.Reader, src fs.ObjectInfo, options ...fs.OpenOption) (err error) {
+	if o.accessTier == azblob.AccessTierArchive {
+		fs.Debugf(o, "deleting archived blob before updating")
+		err = o.Remove(ctx)
+		if err != nil {
+			return errors.Wrap(err, "failed to delete archive blob before updating")
+		}
+	}
 	container, _ := o.split()
 	err = o.fs.makeContainer(ctx, container)
 	if err != nil {
