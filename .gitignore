@@ -10,3 +10,5 @@ rclone.iml
 *.log
 *.iml
 fuzz-build.zip
+
+rclone.exe
